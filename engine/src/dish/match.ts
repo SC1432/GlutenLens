@@ -6,18 +6,20 @@ export function normaliseName(s: string): string {
   return fold(s).text.replace(/[^\p{L}\p{N}\s]/gu, ' ').replace(/\s+/g, ' ').trim();
 }
 
-function levenshtein(a: string, b: string): number {
+/** Optimal string alignment distance: Levenshtein plus adjacent transpositions ("ramne" → "ramen" = 1). */
+function editDistance(a: string, b: string): number {
   const A = [...a];
   const B = [...b];
-  let prev = Array.from({ length: B.length + 1 }, (_, j) => j);
+  const dp: number[][] = Array.from({ length: A.length + 1 }, (_, i) => Array.from({ length: B.length + 1 }, (_, j) => (i === 0 ? j : j === 0 ? i : 0)));
   for (let i = 1; i <= A.length; i++) {
-    const cur = [i];
     for (let j = 1; j <= B.length; j++) {
-      cur[j] = Math.min(prev[j]! + 1, cur[j - 1]! + 1, prev[j - 1]! + (A[i - 1] === B[j - 1] ? 0 : 1));
+      const cost = A[i - 1] === B[j - 1] ? 0 : 1;
+      let v = Math.min(dp[i - 1]![j]! + 1, dp[i]![j - 1]! + 1, dp[i - 1]![j - 1]! + cost);
+      if (i > 1 && j > 1 && A[i - 1] === B[j - 2] && A[i - 2] === B[j - 1]) v = Math.min(v, dp[i - 2]![j - 2]! + 1);
+      dp[i]![j] = v;
     }
-    prev = cur;
   }
-  return prev[B.length]!;
+  return dp[A.length]![B.length]!;
 }
 
 const hasSpaces = (s: string) => /\s/.test(s) || /\p{Script=Latin}/u.test(s);
@@ -33,7 +35,7 @@ function scoreName(query: string, name: string): number {
   if ([...name].length >= 3 && containsPhrase(query, name)) return 0.85; // "chicken pad thai" ⊃ "pad thai"
   if ([...query].length >= 4 && containsPhrase(name, query)) return 0.8; // "teriyaki" ⊂ "chicken teriyaki"
   const len = Math.max([...query].length, [...name].length);
-  const sim = 1 - levenshtein(query, name) / len;
+  const sim = 1 - editDistance(query, name) / len;
   if (sim >= 0.75) return 0.6 + (sim - 0.75) * 1.2; // typos: "ramne" → "ramen"
   const qt = new Set(query.split(' '));
   const nt = new Set(name.split(' '));

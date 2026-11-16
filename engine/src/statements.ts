@@ -31,7 +31,7 @@ const LB = '(?<![\\p{L}])';
 
 const KEYWORDS: Keyword[] = [
   // ---- free-from (list negation). Checked first at any position.
-  K('free_from', `${LB}(?:free\\s+(?:from|of)|does\\s+not\\s+contain|contains\\s+no|made\\s+without|no\\s+added|ne\\s+contient\\s+pas|exempte?\\s+de|libre\\s+de|no\\s+contiene|privo\\s+di|non\\s+contiene|frei\\s+von|enthalt\\s+kein\\p{L}*|vrij\\s+van|bevat\\s+geen|isento\\s+de|livre\\s+de|nao\\s+contem|tidak\\s+mengandung|bebas|khong\\s+chua)`),
+  K('free_from', `${LB}(?:free\\s+(?:from|of)|does\\s+not\\s+contain|contains\\s+no|made\\s+without|ne\\s+contient\\s+pas|exempte?\\s+de|libre\\s+de|no\\s+contiene|privo\\s+di|non\\s+contiene|frei\\s+von|enthalt\\s+kein\\p{L}*|vrij\\s+van|bevat\\s+geen|isento\\s+de|livre\\s+de|nao\\s+contem|tidak\\s+mengandung|bebas|khong\\s+chua)`),
   K('free_from', '不含|무첨가|함유하지\\s*않'),
   // ---- may contain
   K('may_contain', `${LB}(?:may\\s+(?:also\\s+)?(?:contain|be\\s+present|have)|traces?\\s+of|cross[\\s-]+conta(?:ct|mination)|shared\\s+(?:equipment|facility|line)|(?:made|produced|manufactured|processed|packed|packaged|prepared|baked)\\s+(?:in|on|at|using)\\s+(?:a\\s+|the\\s+)?(?:same\\s+|shared\\s+)?(?:facility|factory|premises|equipment|line|site|plant|bakery|kitchen))`),
@@ -163,30 +163,21 @@ export function innerSegment(text: string, start: number, end: number): Span {
 
 /** Top-level ingredient segment: commas inside parentheses don't split it. */
 export function outerSegment(text: string, start: number, end: number): Span {
-  const open = /[(（[]/u;
-  const close = /[)）\]]/u;
+  // Absolute bracket depth at every position, so a term inside "(…)" still
+  // resolves to the whole ingredient that encloses it.
+  const depth: number[] = new Array(text.length).fill(0);
+  let d = 0;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i]!;
+    if (/[)）\]]/u.test(c)) d = Math.max(0, d - 1);
+    depth[i] = d;
+    if (/[(（[]/u.test(c)) d++;
+  }
+  const isBoundary = (i: number) => depth[i] === 0 && (INNER_DELIM.test(text[i]!) || SENTENCE_DELIM.test(text[i]!));
   let s = start;
-  let depth = 0;
-  while (s > 0) {
-    const c = text[s - 1]!;
-    if (close.test(c)) depth++;
-    else if (open.test(c)) {
-      if (depth === 0) { s--; continue; } // we're inside a paren group; keep walking out
-      depth--;
-    } else if (depth === 0 && (INNER_DELIM.test(c) || SENTENCE_DELIM.test(c))) break;
-    s--;
-  }
+  while (s > 0 && !isBoundary(s - 1)) s--;
   let e = end;
-  depth = 0;
-  while (e < text.length) {
-    const c = text[e]!;
-    if (open.test(c)) depth++;
-    else if (close.test(c)) {
-      if (depth === 0) { e++; continue; }
-      depth--;
-    } else if (depth === 0 && (INNER_DELIM.test(c) || SENTENCE_DELIM.test(c))) break;
-    e++;
-  }
+  while (e < text.length && !isBoundary(e)) e++;
   return { start: s, end: e };
 }
 

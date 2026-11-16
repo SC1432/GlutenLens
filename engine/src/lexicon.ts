@@ -46,7 +46,7 @@ const NON_GLUTEN_QUALIFIERS = words([
   'fava', 'beans?', 'mung', 'glass', 'konjac', 'shirataki', 'kelp', 'yam', 'taro', 'gluten[\\s-]*free',
   // fr
   'riz', 'mais', 'sarrasin', 'pois chiches?', 'pomme de terre', 'manioc', 'amandes?', 'coco', 'soja',
-  'chataignes?', 'lin', 'sans gluten', 'lentilles?',
+  'chataignes?', 'lin', 'sans gluten', "ble\\s+d'?\\s*inde", 'ble\\s+noir', 'lentilles?',
   // es / pt / it
   'arroz', 'maiz', 'papa', 'patata', 'garbanzos?', 'mandioca', 'yuca', 'almendras?', 'sin gluten',
   'milho', 'grao[\\s-]de[\\s-]bico', 'batata', 'sem gluten', 'riso', 'patate', 'ceci', 'castagne',
@@ -156,7 +156,7 @@ add('es', 'oats', 'oats', `${L}(?:avena|aveia)${R}`, ['avena', 'copos de avena',
 add('es', 'likely_gluten', 'breadcrumbs / bread / beer', words(['pan rallado', 'pan', 'pao', 'cerveza', 'cerveja', 'semola', 'farinha de rosca', 'pan de molde']).source,
   ['pan rallado', 'pan', 'pão', 'cerveza', 'sémola', 'farinha de rosca'], { unlessSegment: NON_GLUTEN_QUALIFIERS });
 add('es', 'likely_gluten', 'flour', `${L}(?:harinas?|farinhas?)${R}`, ['harina', 'farinha'], { unlessSegment: NON_GLUTEN_QUALIFIERS });
-add('es', 'likely_gluten', 'soy sauce', `salsa\\s+de\\s+soj?ya?|molho\\s+de\\s+soja`, ['salsa de soja', 'salsa de soya', 'molho de soja']);
+add('es', 'likely_gluten', 'soy sauce', `salsa\\s+de\\s+so(?:ja|ya)|molho\\s+de\\s+soja`, ['salsa de soja', 'salsa de soya', 'molho de soja']);
 add('es', 'ambiguous', 'flavouring / starch / stock', words(['aromas?', 'almidon(?:\\s+modificado)?', 'amido(?:\\s+modificado)?', 'extracto\\s+de\\s+levadura', 'extrato\\s+de\\s+levedura', 'caldo']).source,
   ['aroma', 'almidón modificado', 'extracto de levadura', 'extrato de levedura', 'caldo']);
 
@@ -182,7 +182,7 @@ add('de', 'gluten', 'spelt', 'dinkel|grunkern', ['Dinkel', 'Dinkelmehl', 'Grünk
 add('de', 'gluten', 'malt', 'malz', ['Malz', 'Malzextrakt', 'Gerstenmalz']);
 add('de', 'gluten', 'breadcrumbs', 'paniermehl|semmelbrosel', ['Paniermehl', 'Semmelbrösel']);
 add('de', 'oats', 'oats', 'hafer', ['Hafer', 'Haferflocken']);
-add('de', 'likely_gluten', 'flour / semolina / bread / beer', words(['mehl', 'gri(?:ß|ss)', 'brot\\p{L}*', 'bier']).source, ['Mehl', 'Grieß', 'Brot', 'Bier'],
+add('de', 'likely_gluten', 'flour / semolina / bread / beer', words(['mehl', 'grie(?:ß|ss)', 'brot\\p{L}*', 'bier']).source, ['Mehl', 'Grieß', 'Brot', 'Bier'],
   { unlessSegment: NON_GLUTEN_QUALIFIERS });
 add('de', 'likely_gluten', 'soy sauce', 'sojaso(?:ß|ss)e|sojasauce', ['Sojasoße', 'Sojasauce']);
 add('de', 'ambiguous', 'flavouring / starch / stock', words(['aroma', 'aromen', 'modifizierte\\s+starke', 'hefeextrakt', 'bruhe']).source, ['Aroma', 'Hefeextrakt', 'modifizierte Stärke']);
@@ -205,7 +205,7 @@ add('id', 'gluten', 'barley', `${L}jelai${R}`, ['jelai']);
 add('id', 'gluten', 'breadcrumbs', 'tepung\\s+roti|tepung\\s+panir', ['tepung roti', 'tepung panir']);
 add('id', 'oats', 'oats', `${L}havermut${R}`, ['havermut']);
 add('id', 'likely_gluten', 'soy sauce (kecap)', `${L}kecap${R}`, ['kecap manis', 'kecap asin'], { note: 'Kecap is usually brewed with wheat.' });
-add('id', 'likely_gluten', 'flour / noodles / beer', words(['tepung', 'mie', 'mi', 'bir', 'roti']).source, ['tepung', 'mie', 'roti'],
+add('id', 'likely_gluten', 'flour / noodles / beer', words(['tepung', 'mie', 'bir', 'roti']).source, ['tepung', 'mie', 'roti'],
   { unlessSegment: NON_GLUTEN_QUALIFIERS });
 add('id', 'ambiguous', 'flavouring / seasoning', words(['perisa', 'penyedap(?:\\s+rasa)?', 'ekstrak\\s+ragi']).source, ['perisa', 'penyedap rasa', 'ekstrak ragi']);
 

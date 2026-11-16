@@ -103,7 +103,9 @@ export function assessLabel(input: LabelInput, settings: Settings = DEFAULT_SETT
       if (!before && !after) continue;
       const lo = before ? c.end : m.end;
       const hi = before ? m.start : c.start;
-      const between = raw.some((o) => o !== m && o.start >= lo && o.end <= hi);
+      // Another gluten/oat/likely term in between belongs to a different ingredient;
+      // an ambiguous word ("starch") is part of this ingredient's name.
+      const between = raw.some((o) => o !== m && o.start >= lo && o.end <= hi && (o.rule.category === 'gluten' || o.rule.category === 'oats' || o.rule.category === 'likely_gluten'));
       if (between) continue;
       qualified.add(m);
       usedClaims.add(c);
@@ -279,7 +281,7 @@ export function assessLabel(input: LabelInput, settings: Settings = DEFAULT_SETT
     } else if (verdict === 'cannot_verify') reasons.push(why);
   };
 
-  const coverage = checkCoverage(text, input.language, raw.length > 0);
+  const coverage = checkCoverage(text, input.language, raw.length > 0 || claimSpans.length > 0);
   if (!coverage.covered) cap(coverage.reason!);
 
   const ex = input.extraction;
