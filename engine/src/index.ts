@@ -1,0 +1,11 @@
+export * from './types.ts';
+export { assessLabel, findTerms, HEADLINES } from './label.ts';
+export { RULES, type TermRule } from './lexicon.ts';
+export { fold } from './fold.ts';
+export { checkCoverage } from './language.ts';
+export { productToLabelInput, lookupBarcode, OFF_FIELDS, type OffProduct, type BarcodeLookup } from './barcode.ts';
+export { DISHES } from './dish/dishes.ts';
+export { RISK_SOURCES } from './dish/riskSources.ts';
+export { matchDish, normaliseName } from './dish/match.ts';
+export { assessDish, assessEstimatedDish, DISH_HEADLINES } from './dish/assess.ts';
+export * from './extraction/prompts.ts';
