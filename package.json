@@ -1,9 +1,15 @@
 {
   "name": "glutenlens",
   "private": true,
-  "workspaces": ["engine"],
+  "workspaces": [
+    "engine",
+    "app"
+  ],
   "scripts": {
-    "test": "npm test -w engine",
-    "typecheck": "npm run typecheck -w engine"
+    "test": "npm test -w engine && npm test -w app",
+    "typecheck": "npm run typecheck -w engine && npm run typecheck -w app",
+    "dev": "npm run dev -w app",
+    "build": "npm run build -w app",
+    "preview": "npm run preview -w app"
   }
 }
