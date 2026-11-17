@@ -7,7 +7,7 @@ Gluten verdicts for people with coeliac disease, from a food label photo, a barc
 
 The app never presents missing information as safety. See [SPEC.md](SPEC.md) for the rules and [CLAUDE.md](CLAUDE.md) for development notes.
 
-**Status:** the verdict engine (`engine/`) is built and tested (13 languages; AU, NZ, CA, US, EU and UK labelling rules). The phone app (`app/`) has its installable shell and settings screen; the label, barcode and dish flows are next.
+**Status:** the verdict engine (`engine/`) is built and tested (13 languages; AU, NZ, CA, US, EU and UK labelling rules). The phone app (`app/`) has its installable shell, settings screen and Claude API connection (your own key, or the optional proxy in `proxy/`); the label, barcode and dish flows are next.
 
 ```
 npm install && npm test

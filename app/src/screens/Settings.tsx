@@ -1,3 +1,4 @@
+import { ClaudeConnection } from './ClaudeConnection.tsx';
 import { OATS_OPTIONS, REGIONS, type AppSettings } from '../settings.ts';
 
 interface Props {
@@ -61,6 +62,8 @@ export function SettingsScreen({ settings, update, saveFailed }: Props) {
           </label>
         ))}
       </fieldset>
+
+      <ClaudeConnection />
 
       <p className="muted small">Settings are stored only on this device.</p>
     </>

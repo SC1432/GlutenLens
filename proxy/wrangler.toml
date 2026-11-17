@@ -1,0 +1,11 @@
+name = "glutenlens-proxy"
+main = "worker.js"
+compatibility_date = "2026-10-01"
+
+[vars]
+# Comma-separated origins allowed to call the proxy (your app's address).
+ALLOWED_ORIGINS = "https://your-app.example.com"
+
+# Secrets (never put these in this file):
+#   npx wrangler secret put ANTHROPIC_API_KEY
+#   npx wrangler secret put ACCESS_CODE

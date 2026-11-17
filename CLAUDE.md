@@ -15,19 +15,22 @@ engine/                 verdict engine — TypeScript, pure functions, no runtim
   src/dish/             dish knowledge base, matchDish(), assessDish(), assessEstimatedDish()
   src/extraction/       vision prompts + JSON schemas for the app to send to the Claude API
   test/                 684 tests; invariants.test.ts generates cases from lexicon examples
-app/                    PWA — React + Vite (step 1 done: shell + settings)
+app/                    PWA — React + Vite (steps 1–2 done: shell, settings, Claude API access)
   src/settings.ts       region/oats settings, localStorage, cautious fallbacks
-  src/screens/          Home, Settings
+  src/claude/           Claude API: connection (key or proxy), client, vision calls,
+                        structured-output schema adapter, model-output validation, photo resizing
+  src/screens/          Home, Settings (incl. Claude connection)
   src/pwa.ts            service worker registration + "new version" prompt
   scripts/icons.mjs     renders public/favicon.svg to the PNG icons (npm run icons -w app)
   test/                 app unit tests (vitest)
+proxy/                  optional Cloudflare Worker that holds the API key (see proxy/README.md)
 ```
 
 ## Commands
 
 ```
 npm install
-npm test            # engine + app tests (vitest)
+npm test            # engine + app + proxy tests (vitest)
 npm run typecheck   # tsc --noEmit, both workspaces
 npm run dev         # app dev server, reachable from a phone on the same network
 npm run build       # production PWA build → app/dist
@@ -35,6 +38,8 @@ npm run preview     # serve the build (service worker active)
 ```
 
 Installing to the home screen and (later) camera access need HTTPS on a real phone; `localhost` is the only exemption. Use a tunnel or a static host for phone testing.
+
+Claude API (step 2): `app/src/claude/vision.ts` has `extractLabel()`, `recognizeDish()` and `estimateDishIngredients()`. They send the engine's prompts with structured outputs (`claude-opus-5-5`, effort `medium`, server-side refusal fallback), then validate the JSON strictly; malformed output throws, it is never patched with defaults. The SDK is loaded lazily (`await import('../claude/client.ts')`) to keep the first screen small. SDK 1.x sends the key as `Authorization: Bearer`, which the proxy accepts. The key is never in the code: either the user pastes their own (localStorage) or uses the proxy with an access code.
 
 Settings: default region starts as `OTHER` (most cautious) with `regionChosen: false` until the user picks one; the home screen nags until they do. Unknown or corrupt stored values fall back to the cautious default per field.
 
@@ -54,7 +59,7 @@ Stack: React + Vite + TypeScript PWA, importing `@glutenlens/engine` from the wo
 Build in this order, testing each step on a real phone:
 
 1. ✅ **App shell.** Vite PWA (installable, works on iOS Safari and Android Chrome). Settings screen: default region (AU, NZ, CA, US, EU, UK, Other), oats setting. Store settings locally.
-2. **Claude API access.** The API key must not be shipped in client code. For personal use, either a tiny proxy (e.g. a Cloudflare Worker holding the key) or a key the user pastes into settings and keeps in local storage. Check the current Claude API docs for model names, vision input, structured output and browser-access requirements before writing this.
+2. ✅ **Claude API access.** The API key must not be shipped in client code. For personal use, either a tiny proxy (e.g. a Cloudflare Worker holding the key) or a key the user pastes into settings and keeps in local storage. Check the current Claude API docs for model names, vision input, structured output and browser-access requirements before writing this.
 3. **Label flow.** Camera capture → send the photo with `LABEL_EXTRACTION_PROMPT` / `LABEL_EXTRACTION_SCHEMA` → show the extracted text for the user to confirm or edit → `assessLabel({ text: extractionToText(e), region, language: e.language, certificationMark: e.certificationMark, extraction: { confidence, userConfirmed: true, ingredientsFound } })`.
 4. **Barcode flow.** Scan → `lookupBarcode()` → `assessLabel(lookup.input)`. If `needsLabelPhoto`, offer the label flow. "Not found" → offer the label flow.
 5. **Dish flow.** Photo → `DISH_RECOGNITION_PROMPT` → `matchDish(candidates)` → user picks → `assessDish()`. Typed name → `matchDish(name)` → user picks. No match → ask the model for `typicalIngredients` → `assessEstimatedDish()`, clearly labelled as estimated.

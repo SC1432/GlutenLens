@@ -3,10 +3,11 @@
   "private": true,
   "workspaces": [
     "engine",
-    "app"
+    "app",
+    "proxy"
   ],
   "scripts": {
-    "test": "npm test -w engine && npm test -w app",
+    "test": "npm test -w engine && npm test -w app && npm test -w proxy",
     "typecheck": "npm run typecheck -w engine && npm run typecheck -w app",
     "dev": "npm run dev -w app",
     "build": "npm run build -w app",

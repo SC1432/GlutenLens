@@ -12,6 +12,7 @@
     "icons": "NODE_PATH=$(npm root -g) node scripts/icons.mjs"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^1.9.0",
     "@glutenlens/engine": "0.1.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
